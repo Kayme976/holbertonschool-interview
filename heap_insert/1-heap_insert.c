@@ -1,4 +1,4 @@
-##include "binary_trees.h"
+#include "binary_trees.h"
 
 /**
  * height - measures the height of a tree
