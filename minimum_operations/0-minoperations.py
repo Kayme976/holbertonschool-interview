@@ -1,27 +1,19 @@
 #!/usr/bin/python3
-""" Calculate the minimun operations necessary to copy/paste
-    given character to appear n times.
-"""
+"""Minimum Operations"""
 
 
 def minOperations(n):
-    """ Calculate the minimun operations necessary to copy/paste
-        given character to appear n times.
-    """
-    operationCount = 0
-    _file = 'H'
-    buffer = ''
+    """Return the minimum operation with prime number."""
+    if n <= 1:
+        return 0
 
-    while len(_file) < n:
+    operations = 0
+    divisor = 2
 
-        # If target size n is cleaning divisible by current size
-        if n % len(_file) == 0:
-            # Copy file contents to buffer
-            buffer = _file
-            operationCount += 1
+    while n > 1:
+        while n % divisor == 0:
+            operations += divisor
+            n //= divisor
+        divisor += 1
 
-        # Paste buffer to file
-        _file += buffer
-        operationCount += 1
-
-    return operationCount
+    return operations
