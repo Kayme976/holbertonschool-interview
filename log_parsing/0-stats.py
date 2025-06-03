@@ -1,54 +1,50 @@
 #!/usr/bin/python3
-""" A program to ingest and track logs, periodically printing stats.
+"""
+Task - Script that reads stdin liny by line and computes metrics
 """
 
+import sys
 
-from sys import stdin, exit
+if __name__ == "__main__":
+    # Initialize status code dictionary and counters
+    st_code = {
+            "200": 0,
+            "301": 0,
+            "400": 0,
+            "401": 0,
+            "403": 0,
+            "404": 0,
+            "405": 0,
+            "500": 0
+            }
+    count = 1
+    file_size = 0
 
+    def parse_line(line):
+        """Read, parse and grab data"""
+        try:
+            parsed_line = line.split()
+            status_code = parsed_line[-2]
+            if status_code in st_code.keys():
+                st_code[status_code] += 1
+            return int(parsed_line[-1])
+        except Exception:
+            return 0
 
-def printCodeTracking(totalFileSize, codeTracker):
-    """ Print formatted log stats.
-    """
-    # Print total size of data passed to date
-    print('File size: ' + str(totalFileSize))
+    def print_stats():
+        """Print stats in ascending order"""
+        print("File size: {}".format(file_size))
+        for key in sorted(st_code.keys()):
+            if st_code[key]:
+                print("{}: {}".format(key, st_code[key]))
 
-    codeList = sorted(codeTracker.keys())
-
-    # Print formatted count of requests by status code
-    for code in codeList:
-        if codeTracker[code] != 0:
-            print(code + ': ' + str(codeTracker[code]))
-
-
-codeTracker = {
-    '200': 0, '301': 0, '400': 0, '401': 0,
-    '403': 0, '404': 0, '405': 0, '500': 0
-}
-totalFileSize = 0
-loopCounter = 0
-
-try:
-    for line in stdin:
-        # Pull necessary fields from log line
-        lineSplit = line.split()
-
-        if len(lineSplit) >= 2:
-            statusCode, fileSize = [part for part in lineSplit[-2:]]
-
-            # Update persistent size and status counters
-            totalFileSize += int(fileSize)
-            if statusCode in codeTracker:
-                codeTracker[statusCode] += 1
-
-                # Keep track of how many logs have been read in print loop
-                if loopCounter == 9:
-                    printCodeTracking(totalFileSize, codeTracker)
-                    loopCounter = 0
-                else:
-                    loopCounter += 1
-
-    # Print stats at end of input stream
-    printCodeTracking(totalFileSize, codeTracker)
-
-except KeyboardInterrupt:
-    printCodeTracking(totalFileSize, codeTracker)
+    try:
+        for line in sys.stdin:
+            file_size += parse_line(line)
+            if count % 10 == 0:
+                print_stats()
+            count += 1
+    except KeyboardInterrupt:
+        print_stats()
+        raise
+    print_stats()
